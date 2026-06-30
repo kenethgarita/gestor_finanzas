@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Freelance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-emerald-400">Control Finanzas</h1>
+                <p class="text-gray-400 text-sm">Fase 1: HTML + Vanilla JS</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportarCSV()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded text-xs transition-colors">
+                    Exportar CSV
+                </button>
+                <button onclick="respaldarData()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded text-xs transition-colors">
+                    Crear Backup
+                </button>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <p class="text-gray-400 text-xs uppercase tracking-wider">Ingresos del Trabajo</p>
+                <p id="total-ingresos" class="text-2xl font-bold text-emerald-400">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <p class="text-gray-400 text-xs uppercase tracking-wider">Gastos Fijos / Variables</p>
+                <p id="total-gastos" class="text-2xl font-bold text-rose-400">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                <p class="text-gray-400 text-xs uppercase tracking-wider">Balance Libre</p>
+                <p id="total-libre" class="text-2xl font-bold text-sky-400">0</p>
+            </div>
+            <div id="alerta-presupuesto" class="bg-gray-800 p-4 rounded-xl border border-amber-500/30 flex flex-col justify-center">
+                <p class="text-amber-400 text-xs font-semibold uppercase tracking-wider">Estado Presupuesto</p>
+                <p class="text-gray-300 text-sm mt-1">Dentro del límite mensual</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 lg:col-span-1">
+                <h2 class="text-lg font-semibold mb-4 text-gray-200">Nueva Transacción</h2>
+                <form id="form-transaccion" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Tipo</label>
+                            <select id="tipo" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                                <option value="ingreso">Ingreso (+)</option>
+                                <option value="gasto">Gasto (-)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Fecha</label>
+                            <input type="date" id="fecha" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Monto</label>
+                            <input type="number" id="monto" required min="1" placeholder="Monto" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Categoría</label>
+                            <select id="categoria" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                                <option value="Comida">Comida</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Vivienda">Vivienda</option>
+                                <option value="Ocio">Ocio</option>
+                                <option value="Servicios">Servicios / Suscripciones</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Etiqueta (Opcional)</label>
+                            <input type="text" id="etiqueta" placeholder="Ej: viaje-cartago" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Recibo / Foto</label>
+                            <input type="file" id="recibo" accept="image/*" class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Descripción</label>
+                        <input type="text" id="descripcion" required placeholder="Ej: Compra de café o Pago de cliente" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold p-2.5 rounded text-sm transition-colors mt-2">
+                        Guardar Registro
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 lg:col-span-2 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-lg font-semibold text-gray-200">Distribución de Gastos</h2>
+                    <span class="text-xs text-gray-400">Por Categoría</span>
+                </div>
+                <div class="relative w-full h-64 flex items-center justify-center">
+                    <canvas id="grafica-gastos"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-200">Historial de Movimientos</h2>
+                <div class="w-full md:w-72">
+                    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="Buscar por descripción o etiqueta..." class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-400">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="text-xs uppercase bg-gray-700 text-gray-300">
+                        <tr>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Descripción / Etiqueta</th>
+                            <th class="p-3">Categoría</th>
+                            <th class="p-3">Tipo</th>
+                            <th class="p-3">Recibo</th>
+                            <th class="p-3 text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-transacciones">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

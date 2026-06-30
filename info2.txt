@@ -1,0 +1,41 @@
+frontend : html, js, tailwind
+
+backend: fastapi 
+
+db: sqlite
+------------------------------------------------------------------------
+
+db:
+
+tablas: 
+usuarios
+    id
+    nombre
+    email
+    password_hash
+
+cuentas:
+    id
+    usuario_id
+    nombre
+    saldo
+
+categorias:
+    id
+    nombre
+    tipo
+transacciones:
+    id
+    usuario_id
+    categoria_id
+    monto
+    tipo
+    descripcion
+    fecha
+    factura_img
+presupuetos:
+    id
+    usuario_id
+    categoria_id
+    monto_limite
+    periodo

@@ -1,0 +1,68 @@
+Pedazos de código
+
+function exportarCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,Descripción,Categoría,Tipo,Monto,Fecha\n";
+    transacciones.forEach(t => {
+        csvContent += `"${t.descripcion}","${t.categoria}","${t.tipo}",${t.monto},${t.fecha}\n`;
+    });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "reporte_gastos.csv");
+    document.body.appendChild(link);
+    link.click();
+}
+
+------------------------------------------------------------------------
+
+
+Registro de transacciones
+
+Ingreso rápido de gastos e ingresos (monto, fecha, categoría, descripción)
+Soporte para gastos recurrentes (suscripciones, alquiler, servicios)
+Adjuntar fotos de recibos/facturas
+
+Categorización
+
+Categorías predefinidas (comida, transporte, vivienda, ocio, etc.) y personalizables
+Subcategorías para mayor detalle
+Etiquetas para casos especiales (ej. "viaje a Cartago")
+
+Presupuestos
+
+Definir límites mensuales por categoría
+Alertas cuando te acercas o superas el presupuesto
+Comparación de presupuestado vs. real
+
+Reportes y visualización
+
+Gráficos de gastos por categoría, mes, tendencia
+Resumen de balance (ingresos - gastos)
+Exportación de datos (CSV, Excel, PDF)
+
+Funciones adicionales útiles
+
+Metas de ahorro
+    
+Sincronización en la nube / multi-dispositivo
+Modo compartido (para gastos de pareja o familia)
+Recordatorios de pagos pendientes
+Búsqueda y filtros avanzados
+
+Seguridad
+
+Protección con PIN/biometría
+Backup de datos
+
+
+
+
+---------------------------------------------------------------
+
+
+Cuentas múltiples
+
+Soporte para varias cuentas bancarias, tarjetas, efectivo
+Transferencias entre cuentas sin que cuenten como gasto
+
+Multi-moneda (si manejas USD y colones, por ejemplo) 
