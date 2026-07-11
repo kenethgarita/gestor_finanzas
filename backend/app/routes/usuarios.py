@@ -1,17 +1,18 @@
-import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.auth import create_access_token, hash_password, verify_password, verify_token
 from app.db import get_db
 from app.models import Usuario
-from app.schemas import UsuarioCreate, UsuarioOut, UsuarioUpdate
+from app.schemas import (
+    LoginRequest,
+    TokenOut,
+    UsuarioCreate,
+    UsuarioOut,
+    UsuarioUpdate,
+)
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
-
-
-def hash_password(password: str) -> str:
-    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-    return hashed.decode("utf-8")
 
 
 @router.post("/", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
@@ -28,6 +29,27 @@ def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     db.add(db_usuario)
     db.commit()
     db.refresh(db_usuario)
+    return db_usuario
+
+
+@router.post("/login", response_model=TokenOut)
+def login(usuario_login: LoginRequest, db: Session = Depends(get_db)):
+    db_usuario = db.query(Usuario).filter(Usuario.email == usuario_login.email).first()
+    if not db_usuario or not verify_password(usuario_login.password, db_usuario.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+
+    token = create_access_token({"sub": str(db_usuario.id)})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/me", response_model=UsuarioOut)
+def obtener_usuario_actual(
+    db: Session = Depends(get_db),
+    usuario_id: str = Depends(verify_token),
+):
+    db_usuario = db.query(Usuario).filter(Usuario.id == int(usuario_id)).first()
+    if db_usuario is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_usuario
 
 

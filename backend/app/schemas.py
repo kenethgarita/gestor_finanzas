@@ -25,6 +25,16 @@ class UsuarioUpdate(BaseModel):
     password: str | None = None
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
 class UsuarioOut(UsuarioBase):
     id: int
 
