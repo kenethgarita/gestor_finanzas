@@ -1,149 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas Freelance</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas Freelance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8">
+<body class="min-h-screen bg-gray-900 p-4 text-gray-100 md:p-8">
+  <div id="dashboard-page" class="mx-auto max-w-7xl">
+    <header class="mb-8 flex flex-col justify-between gap-4 rounded-2xl border border-gray-700 bg-gray-800 p-6 md:flex-row md:items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-emerald-400">Control Finanzas</h1>
+        <p class="mt-1 text-sm text-gray-400">Bienvenido, <span id="usuario-nombre">usuario</span></p>
+      </div>
+      <div class="flex gap-2">
+        <button id="logout-btn" class="rounded border border-gray-700 bg-gray-700 px-3 py-2 text-sm transition hover:bg-gray-600">Cerrar sesión</button>
+      </div>
+    </header>
 
-    <div class="max-w-6xl mx-auto">
-        
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-emerald-400">Control Finanzas</h1>
-                
-            </div>
-            <div class="flex gap-2">
-                <button onclick="exportarCSV()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded text-xs transition-colors">
-                    Exportar CSV
-                </button>
-                <button onclick="respaldarData()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded text-xs transition-colors">
-                    Crear Backup
-                </button>
-            </div>
-        </header>
+    <div id="dashboard-message"></div>
 
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase tracking-wider">Ingresos del Trabajo</p>
-                <p id="total-ingresos" class="text-2xl font-bold text-emerald-400">0</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase tracking-wider">Gastos Fijos / Variables</p>
-                <p id="total-gastos" class="text-2xl font-bold text-rose-400">0</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase tracking-wider">Balance Libre</p>
-                <p id="total-libre" class="text-2xl font-bold text-sky-400">0</p>
-            </div>
-            <div id="alerta-presupuesto" class="bg-gray-800 p-4 rounded-xl border border-amber-500/30 flex flex-col justify-center">
-                <p class="text-amber-400 text-xs font-semibold uppercase tracking-wider">Estado Presupuesto</p>
-                <p class="text-gray-300 text-sm mt-1">Dentro del límite mensual</p>
-            </div>
-        </section>
+    <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div class="rounded-xl border border-gray-700 bg-gray-800 p-4">
+        <p class="text-xs uppercase tracking-wider text-gray-400">Ingresos</p>
+        <p id="total-ingresos" class="mt-2 text-2xl font-bold text-emerald-400">0</p>
+      </div>
+      <div class="rounded-xl border border-gray-700 bg-gray-800 p-4">
+        <p class="text-xs uppercase tracking-wider text-gray-400">Gastos</p>
+        <p id="total-gastos" class="mt-2 text-2xl font-bold text-rose-400">0</p>
+      </div>
+      <div class="rounded-xl border border-gray-700 bg-gray-800 p-4">
+        <p class="text-xs uppercase tracking-wider text-gray-400">Balance</p>
+        <p id="total-libre" class="mt-2 text-2xl font-bold text-sky-400">0</p>
+      </div>
+      <div class="rounded-xl border border-gray-700 bg-gray-800 p-4">
+        <p class="text-xs uppercase tracking-wider text-gray-400">Saldo activo</p>
+        <p id="total-cuentas" class="mt-2 text-2xl font-bold text-amber-400">0</p>
+      </div>
+    </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 lg:col-span-1">
-                <h2 class="text-lg font-semibold mb-4 text-gray-200">Nueva Transacción</h2>
-                <form id="form-transaccion" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Tipo</label>
-                            <select id="tipo" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                                <option value="ingreso">Ingreso (+)</option>
-                                <option value="gasto">Gasto (-)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Fecha</label>
-                            <input type="date" id="fecha" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Monto</label>
-                            <input type="number" id="monto" required min="1" placeholder="Monto" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Categoría</label>
-                            <select id="categoria" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                                <option value="Comida">Comida</option>
-                                <option value="Transporte">Transporte</option>
-                                <option value="Vivienda">Vivienda</option>
-                                <option value="Ocio">Ocio</option>
-                                <option value="Servicios">Servicios / Suscripciones</option>
-                                <option value="Otros">Otros</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Etiqueta (Opcional)</label>
-                            <input type="text" id="etiqueta" placeholder="Ej: viaje-cartago" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Recibo / Foto</label>
-                            <input type="file" id="recibo" accept="image/*" class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Descripción</label>
-                        <input type="text" id="descripcion" required placeholder="Ej: Compra de café o Pago de cliente" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-400">
-                    </div>
-
-                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold p-2.5 rounded text-sm transition-colors mt-2">
-                        Guardar Registro
-                    </button>
-                </form>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 lg:col-span-2 flex flex-col justify-between">
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-lg font-semibold text-gray-200">Distribución de Gastos</h2>
-                    <span class="text-xs text-gray-400">Por Categoría</span>
-                </div>
-                <div class="relative w-full h-64 flex items-center justify-center">
-                    <canvas id="grafica-gastos"></canvas>
-                </div>
-            </div>
-
+    <section class="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-6 lg:col-span-2">
+        <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-200">Transacciones</h2>
+            <span class="text-sm text-gray-400">Crear y revisar</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="cuenta-activa-select" class="text-sm text-gray-400">Cuenta activa</label>
+            <select id="cuenta-activa-select" class="rounded border border-gray-600 bg-gray-700 p-2 text-sm text-white focus:border-emerald-400 focus:outline-none"></select>
+          </div>
         </div>
 
-        <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <h2 class="text-lg font-semibold text-gray-200">Historial de Movimientos</h2>
-                <div class="w-full md:w-72">
-                    <input type="text" id="buscador" onkeyup="filtrarTabla()" placeholder="Buscar por descripción o etiqueta..." class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-400">
-                </div>
-            </div>
+        <form id="form-transaccion" class="grid gap-4 md:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-xs text-gray-400">Tipo</label>
+            <select id="transaccion-tipo" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none">
+              <option value="ingreso">Ingreso</option>
+              <option value="gasto">Gasto</option>
+            </select>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs text-gray-400">Fecha</label>
+            <input id="transaccion-fecha" type="date" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs text-gray-400">Monto</label>
+            <input id="transaccion-monto" type="number" step="0.01" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs text-gray-400">Categoría</label>
+            <select id="transaccion-categoria" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"></select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="mb-1 block text-xs text-gray-400">Descripción</label>
+            <input id="transaccion-descripcion" type="text" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          </div>
+          <div class="md:col-span-2">
+            <button id="btn-transaccion" type="submit" class="w-full rounded bg-emerald-500 px-4 py-2.5 font-semibold text-gray-900 transition hover:bg-emerald-400">Crear transacción</button>
+          </div>
+        </form>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-400">
-                    <thead class="text-xs uppercase bg-gray-700 text-gray-300">
-                        <tr>
-                            <th class="p-3">Fecha</th>
-                            <th class="p-3">Descripción / Etiqueta</th>
-                            <th class="p-3">Categoría</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Recibo</th>
-                            <th class="p-3 text-right">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-transacciones">
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        <div id="transaccion-message"></div>
+      </div>
 
-    </div>
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-200">Cuentas</h2>
+          <span class="text-sm text-gray-400">Saldo actual</span>
+        </div>
 
-    <script src="app.js"></script>
+        <form id="form-cuenta" class="space-y-3">
+          <input id="cuenta-nombre" type="text" placeholder="Nombre de la cuenta" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          <input id="cuenta-saldo" type="number" step="0.01" placeholder="Saldo inicial" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          <button id="btn-cuenta" type="submit" class="w-full rounded bg-sky-500 px-4 py-2.5 font-semibold text-white transition hover:bg-sky-400">Crear cuenta</button>
+        </form>
+
+        <div id="cuenta-message"></div>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-sm text-gray-400">
+            <tbody id="lista-cuentas"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-200">Categorías</h2>
+          <span class="text-sm text-gray-400">Ingreso o gasto</span>
+        </div>
+
+        <form id="form-categoria" class="space-y-3">
+          <input id="categoria-nombre" type="text" placeholder="Nombre de la categoría" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          <select id="categoria-tipo" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none">
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto">Gasto</option>
+          </select>
+          <button id="btn-categoria" type="submit" class="w-full rounded bg-emerald-500 px-4 py-2.5 font-semibold text-gray-900 transition hover:bg-emerald-400">Crear categoría</button>
+        </form>
+
+        <div id="categoria-message"></div>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-sm text-gray-400">
+            <tbody id="lista-categorias"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-gray-200">Presupuestos</h2>
+          <span class="text-sm text-gray-400">Límites por periodo</span>
+        </div>
+
+        <form id="form-presupuesto" class="space-y-3">
+          <select id="presupuesto-categoria" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"></select>
+          <input id="presupuesto-monto" type="number" step="0.01" placeholder="Monto límite" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+          <select id="presupuesto-periodo" class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none">
+            <option value="semanal">Semanal</option>
+            <option value="mensual">Mensual</option>
+            <option value="anual">Anual</option>
+          </select>
+          <button id="btn-presupuesto" type="submit" class="w-full rounded bg-amber-500 px-4 py-2.5 font-semibold text-white transition hover:bg-amber-400">Crear presupuesto</button>
+        </form>
+
+        <div id="presupuesto-message"></div>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-sm text-gray-400">
+            <tbody id="lista-presupuestos"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-gray-700 bg-gray-800 p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-200">Últimas transacciones</h2>
+        <span class="text-sm text-gray-400">Recientes</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-400">
+          <thead class="text-xs uppercase text-gray-300">
+            <tr>
+              <th class="p-3">Fecha</th>
+              <th class="p-3">Descripción</th>
+              <th class="p-3">Cuenta</th>
+              <th class="p-3">Categoría</th>
+              <th class="p-3">Tipo</th>
+              <th class="p-3">Recibo</th>
+              <th class="p-3 text-right">Monto</th>
+            </tr>
+          </thead>
+          <tbody id="lista-transacciones"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

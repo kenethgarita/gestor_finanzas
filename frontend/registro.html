@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-900 p-4 text-gray-100 md:p-8">
+  <div class="mx-auto flex min-h-screen max-w-4xl items-center justify-center">
+    <div class="w-full max-w-md rounded-2xl border border-gray-700 bg-gray-800 p-8 shadow-2xl">
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-emerald-400">Crear cuenta</h1>
+        <p class="mt-2 text-sm text-gray-400">Regístrate y empieza a controlar tus finanzas.</p>
+      </div>
+
+      <form id="registro-form" class="space-y-4">
+        <div>
+          <label class="mb-1 block text-sm text-gray-400">Nombre</label>
+          <input id="nombre" type="text" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-gray-400">Email</label>
+          <input id="email" type="email" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-gray-400">Contraseña</label>
+          <input id="password" type="password" required class="w-full rounded border border-gray-600 bg-gray-700 p-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none" />
+        </div>
+        <button type="submit" class="w-full rounded bg-emerald-500 px-4 py-2.5 font-semibold text-gray-900 transition hover:bg-emerald-400">Registrarme</button>
+      </form>
+
+      <div id="registro-message" class="mt-4"></div>
+
+      <p class="mt-4 text-center text-sm text-gray-400">
+        ¿Ya tienes cuenta?
+        <a href="login.html" class="text-emerald-400 hover:underline">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('registro-form');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const nombre = document.getElementById('nombre').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const box = document.getElementById('registro-message');
+
+        try {
+          await registerUser(nombre, email, password);
+          box.className = 'mt-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300';
+          box.textContent = 'Usuario creado correctamente. Ahora puedes iniciar sesión.';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 800);
+        } catch (error) {
+          box.className = 'mt-4 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-300';
+          box.textContent = error.message;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

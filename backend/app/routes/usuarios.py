@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token, hash_password, verify_password, verify_token
+from app.auth import create_access_token, get_current_user, hash_password, verify_password
 from app.db import get_db
 from app.models import Usuario
 from app.schemas import (
@@ -36,7 +36,10 @@ def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
 def login(usuario_login: LoginRequest, db: Session = Depends(get_db)):
     db_usuario = db.query(Usuario).filter(Usuario.email == usuario_login.email).first()
     if not db_usuario or not verify_password(usuario_login.password, db_usuario.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
 
     token = create_access_token({"sub": str(db_usuario.id)})
     return {"access_token": token, "token_type": "bearer"}
@@ -45,22 +48,38 @@ def login(usuario_login: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UsuarioOut)
 def obtener_usuario_actual(
     db: Session = Depends(get_db),
-    usuario_id: str = Depends(verify_token),
+    usuario_actual: Usuario = Depends(get_current_user),
 ):
-    db_usuario = db.query(Usuario).filter(Usuario.id == int(usuario_id)).first()
-    if db_usuario is None:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return db_usuario
+    return usuario_actual
 
 
 @router.get("/", response_model=list[UsuarioOut])
-def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(Usuario).offset(skip).limit(limit).all()
+def listar_usuarios(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(get_current_user),
+):
+    return (
+        db.query(Usuario)
+        .filter(Usuario.id == usuario_actual.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.get("/{usuario_id}", response_model=UsuarioOut)
-def obtener_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+def obtener_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(get_current_user),
+):
+    db_usuario = (
+        db.query(Usuario)
+        .filter(Usuario.id == usuario_id, Usuario.id == usuario_actual.id)
+        .first()
+    )
     if db_usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_usuario
@@ -68,9 +87,16 @@ def obtener_usuario(usuario_id: int, db: Session = Depends(get_db)):
 
 @router.patch("/{usuario_id}", response_model=UsuarioOut)
 def actualizar_usuario(
-    usuario_id: int, cambios: UsuarioUpdate, db: Session = Depends(get_db)
+    usuario_id: int,
+    cambios: UsuarioUpdate,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(get_current_user),
 ):
-    db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    db_usuario = (
+        db.query(Usuario)
+        .filter(Usuario.id == usuario_id, Usuario.id == usuario_actual.id)
+        .first()
+    )
     if db_usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
@@ -93,8 +119,16 @@ def actualizar_usuario(
 
 
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    db_usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+def eliminar_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(get_current_user),
+):
+    db_usuario = (
+        db.query(Usuario)
+        .filter(Usuario.id == usuario_id, Usuario.id == usuario_actual.id)
+        .first()
+    )
     if db_usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     db.delete(db_usuario)

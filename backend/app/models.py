@@ -46,6 +46,7 @@ class Cuenta(Base):
     saldo = Column(Numeric(12, 2), nullable=False, default=0)
 
     usuario = relationship("Usuario", back_populates="cuentas")
+    transacciones = relationship("Transaccion", back_populates="cuenta")
 
 
 class Categoria(Base):
@@ -66,6 +67,7 @@ class Transaccion(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    cuenta_id = Column(Integer, ForeignKey("cuentas.id"), nullable=False)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
     monto = Column(Numeric(12, 2), nullable=False)
     tipo = Column(String(20), nullable=False)
@@ -74,6 +76,7 @@ class Transaccion(Base):
     factura_img = Column(String(255), nullable=True)
 
     usuario = relationship("Usuario", back_populates="transacciones")
+    cuenta = relationship("Cuenta", back_populates="transacciones")
     categoria = relationship("Categoria", back_populates="transacciones")
 
 

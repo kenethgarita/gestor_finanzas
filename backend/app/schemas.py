@@ -53,7 +53,7 @@ class CuentaBase(BaseModel):
 
 
 class CuentaCreate(CuentaBase):
-    usuario_id: int
+    pass
 
 
 class CuentaUpdate(BaseModel):
@@ -81,7 +81,7 @@ class CategoriaBase(BaseModel):
 
 
 class CategoriaCreate(CategoriaBase):
-    usuario_id: int
+    pass
 
 
 class CategoriaUpdate(BaseModel):
@@ -111,12 +111,13 @@ class TransaccionBase(BaseModel):
 
 
 class TransaccionCreate(TransaccionBase):
-    usuario_id: int
+    cuenta_id: int | None = None
     categoria_id: int
     fecha: datetime | None = None  # si no se manda, se usa datetime.utcnow()
 
 
 class TransaccionUpdate(BaseModel):
+    cuenta_id: int | None = None
     categoria_id: int | None = None
     monto: Decimal | None = None
     tipo: TipoTransaccion | None = None
@@ -128,6 +129,7 @@ class TransaccionUpdate(BaseModel):
 class TransaccionOut(TransaccionBase):
     id: int
     usuario_id: int
+    cuenta_id: int | None = None
     categoria_id: int
     fecha: datetime
 
@@ -147,7 +149,6 @@ class PresupuestoBase(BaseModel):
 
 
 class PresupuestoCreate(PresupuestoBase):
-    usuario_id: int
     categoria_id: int
 
 
